@@ -1,0 +1,58 @@
+---
+title: "lead-IQ-01"
+author: "Marin Haluza"
+date: "2025-11-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+First, we will download the dataset for lead IQ.This lives in the DataRaw Folder of the project. We will use the head function to look at the first Six observations of the data set. 
+
+```{r}
+leadiq <- read.csv("C:/Users/marin/OneDrive/Haluza_Project_01/DataRaw/lead-iq-01.csv")
+head(leadiq)
+```
+
+Now we will create a bar graph showing the mean IQ levels by location status. We will use the ggplot2 package to create this plot.
+
+```{r}
+library (ggplot2)
+
+ggplot(leadiq, aes(x = factor(Smelter), y = IQ)) + 
+  stat_summary (fun = "mean", geom = "bar", fill = "lightblue") + 
+  ylab ("Mean IQ") +
+  xlab("Distance from Smelter") +
+  ggtitle ("Mean IQ Score by Lead Exposure Group")
+```
+
+After looking at the Mean IQ Score, we will now use the gtsummary package to create a table describing our data.
+```{r}
+library (gtsummary)
+
+table <- tbl_summary(leadiq, by = Smelter,
+                     statistic = list(all_continuous() ~ "{mean} ({sd})",
+                                      all_categorical() ~ "{n} ({p}%)" ), 
+                    missing = "no")%>%
+
+                    modify_spanning_header(
+                    all_stat_cols() ~ "**IQ Results by Smelter Group**" ) %>%
+                     bold_labels()
+
+table
+
+```
+
+Looking at the data, we can see that visually the MeanIQ for participants that live a far distance from the smelter is higher than those who live near the smelter. There are 67 subjects who live far away from the Smelter and 57 participants that live near the smelter. The mean IQ for the participants who live far from the smelter is 106 (SD = 112) and 89 (SD = 12) for those who live near the smelter.
+
+
+```{r}
+mean_far <- mean(leadiq$IQ[leadiq$Smelter == "Far"])
+mean_near <- mean(leadiq$IQ[leadiq$Smelter == "Near"])
+```
+
+The average IQ for participants living far from the smelter is `r mean_far`, while the average IQ for those living near the smelter is `r mean_near`.
+
+
