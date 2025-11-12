@@ -11,9 +11,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 First, we will download the dataset for lead IQ.This lives in the DataRaw Folder of the project. We will use the head function to look at the first Six observations of the data set. 
 
+Update 11/12/2025, 3:30pm: There is one value of IQ that needs to be changed from 999 to 99. This will be updated here. 
+
 ```{r}
 leadiq <- read.csv("C:/Users/marin/OneDrive/Haluza_Project_01/DataRaw/lead-iq-01.csv")
+#Below changes the 999 value to 99. You will need to run this code each in order to change the value.
+leadiq$IQ [leadiq$IQ == 999] <- 99
 head(leadiq)
+
+
 ```
 
 Now we will create a bar graph showing the mean IQ levels by location status. We will use the ggplot2 package to create this plot.
