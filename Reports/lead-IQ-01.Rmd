@@ -1,43 +1,44 @@
 ---
-title: "lead-IQ-01"
+title: "R Markdown Assignment -lead-IQ"
 author: "Marin Haluza"
 date: "2025-11-07"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE) #R-Markdown Set up
 ```
 
-First, we will download the dataset for lead IQ.This lives in the DataRaw Folder of the project. We will use the head function to look at the first Six observations of the data set. 
+First, we will download the dataset for lead IQ.This lives in the DataRaw Folder of the project. We will use the head function to look at the first six observations of the data set.We will use the here package to make the data accessible from the project root.
 
 Update 11/12/2025, 3:30pm: There is one value of IQ that needs to be changed from 999 to 99. This will be updated here. 
 
 ```{r}
-leadiq <- read.csv("C:/Users/marin/OneDrive/Haluza_Project_01/DataRaw/lead-iq-01.csv")
-#Below changes the 999 value to 99. You will need to run this code each in order to change the value.
-leadiq$IQ [leadiq$IQ == 999] <- 99
-head(leadiq)
-
+library(here) #downloads "here" package to download data
+leadiq <- read.csv(here::here("DataRaw", "lead-iq-01.csv")) #creates a data frame named leadiq. Using the here package allows user to download data from the project root
+leadiq$IQ [leadiq$IQ == 999] <- 99 #changes the 999 value to 99. You will need to run this code each in order to change the value.
+head(leadiq) #shows the first six observations in leadiq, just to check
 
 ```
 
 Now we will create a bar graph showing the mean IQ levels by location status. We will use the ggplot2 package to create this plot.
 
 ```{r}
-library (ggplot2)
+library (ggplot2) #loads the ggplot2 package
 
+#creates bar plot of the mean IQ by distance from Smelter
 ggplot(leadiq, aes(x = factor(Smelter), y = IQ)) + 
   stat_summary (fun = "mean", geom = "bar", fill = "lightblue") + 
   ylab ("Mean IQ") +
   xlab("Distance from Smelter") +
-  ggtitle ("Mean IQ Score by Lead Exposure Group")
+  ggtitle ("Mean IQ Score by Lead Exposure Group") #ylab, xlab, and ggitle provide a titles to the y axis, x axis, and overall title respectively
 ```
 
 After looking at the Mean IQ Score, we will now use the gtsummary package to create a table describing our data.
 ```{r}
-library (gtsummary)
+library (gtsummary) #loads the gtsummary package
 
+#creates a table of all continuous (with mean and SD) and categorical (with count and proportion) variables 
 table <- tbl_summary(leadiq, by = Smelter,
                      statistic = list(all_continuous() ~ "{mean} ({sd})",
                                       all_categorical() ~ "{n} ({p}%)" ), 
@@ -45,20 +46,21 @@ table <- tbl_summary(leadiq, by = Smelter,
 
                     modify_spanning_header(
                     all_stat_cols() ~ "**IQ Results by Smelter Group**" ) %>%
-                     bold_labels()
+                     bold_labels() #provides a title of the table with bold lettering
 
-table
+table #prints the table
+
+mean_far <- mean(leadiq$IQ[leadiq$Smelter == "Far"], na.rm = TRUE) #creates a variable for the mean IQ for individuals that live far from the smelter (Smelter = Far)
+mean_near <- mean(leadiq$IQ[leadiq$Smelter == "Near"], na.rm = TRUE) #creates a variable for the mean IQ for individuals that live near the smelter (Smelter = Near)
+n_far  <- sum(leadiq$Smelter == "Far") #creates a variable for the sample size count for individuals that live far from the smelter
+n_near <- sum(leadiq$Smelter == "Near") #creates a variable for the sample size count for individuals that live near the smelter
+sd_far  <- sd(leadiq$IQ[leadiq$Smelter == "Far"], na.rm = TRUE) #creates standard deviation variable for smelter = far
+sd_near <- sd(leadiq$IQ[leadiq$Smelter == "Near"], na.rm = TRUE) #creates standard deviation variable for smelter = near
 
 ```
 
-Looking at the data, we can see that visually the MeanIQ for participants that live a far distance from the smelter is higher than those who live near the smelter. There are 67 subjects who live far away from the Smelter and 57 participants that live near the smelter. The mean IQ for the participants who live far from the smelter is 106 (SD = 112) and 89 (SD = 12) for those who live near the smelter.
+Looking at the data, we can see that visually the Mean IQ for participants that live a far distance from the smelter is higher than those who live near the smelter. There are `r n_far` subjects who live far away from the Smelter and `r n_near`  participants that live near the smelter. The average IQ for participants living far from the smelter is `r mean_far` (SD =`r sd_far`), while the average IQ for those living near the smelter is `r mean_near`(SD = `r sd_near`).
 
 
-```{r}
-mean_far <- mean(leadiq$IQ[leadiq$Smelter == "Far"])
-mean_near <- mean(leadiq$IQ[leadiq$Smelter == "Near"])
-```
-
-The average IQ for participants living far from the smelter is `r mean_far`, while the average IQ for those living near the smelter is `r mean_near`.
 
 
